@@ -4,6 +4,9 @@
 import Dashboard from "@/app/dashboard/page";
 import CategoryList from "./_components/CategoryList";
 import BussinessList from "./_components/BussinessList";
+import Dish from "./_components/Dish";
+import ProductsContainer from "./_components/ProductsContainer";
+
 
 export default function Home() {
   return (
@@ -13,8 +16,10 @@ export default function Home() {
       {/*  <UserButton /> */}
 
       <Dashboard /> 
-       <CategoryList /> 
-       <BussinessList />
+       {/* <CategoryList /> 
+      
+       <Dish/>  */}
+       <ProductsContainer/>
     </div>
   );
 }

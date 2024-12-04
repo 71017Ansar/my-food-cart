@@ -7,17 +7,19 @@ import { ArrowRightCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
-export default function CategoryList() {
+export default function CategoryList({setSelectedCategory,selectedCategory}) {
     const [categoryList, setCategoryList] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState('all'); // Fixed initial state
+     // Fixed initial state
     const listRef = useRef(null);
 
     const params = useSearchParams();
+   // console.log(selectedCategory)
+ 
 
-    useEffect(() => {
-        const category = params.get('category');
-        setSelectedCategory(category || 'all'); // Fallback to 'all' if no category is selected
-    }, [params]);
+    // useEffect(() => {
+    //     const category = params.get('category');
+    //     setSelectedCategory(category || 'all'); // Fallback to 'all' if no category is selected
+    // }, [params]);
 
     useEffect(() => {
         const getCategoryList = async () => {
@@ -48,12 +50,13 @@ export default function CategoryList() {
         <div className="relative bg-gray-50 p-4">
             <div className="flex gap-4 overflow-x-auto scrollbar-hide" ref={listRef}>
                 {categoryList.map((category, index) => (
-                    <Link
-                        href={`?category=${category.slug}`} // Fixed the concatenation
+                    <div
+                        onClick={()=>{
+                            setSelectedCategory(category.name)
+                            
+                        }}
                         key={index}
-                        className={`flex flex-col items-center gap-2 p-4 bg-white rounded-lg shadow-xl hover:shadow-lg transform hover:scale-105 transition-transform min-w-[120px] w-32 ${
-                            selectedCategory === category.slug ? 'text-primary bg-orange-500 border-primary border-2 shadow-lg rounded-lg' : ''
-                        }`}
+                        className={`flex flex-col items-center gap-2 p-4 bg-white rounded-lg shadow-xl hover:shadow-lg transform hover:scale-105 transition-transform min-w-[120px] w-32 `}
                     >
                         {category.icon && category.icon.url ? (
                             <Image src={category.icon.url} alt={category.name} width={50} height={50} className="rounded-md" />
@@ -63,7 +66,7 @@ export default function CategoryList() {
                             </div>
                         )}
                         <h2 className="text-gray-800 text-sm font-medium text-center">{category.name}</h2>
-                    </Link>
+                    </div>
                 ))}
             </div>
             <ArrowRightCircle

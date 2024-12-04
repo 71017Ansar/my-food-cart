@@ -24,27 +24,27 @@ export const GetCategory = async () => {
 };
 
 // Function to get businesses by category
-export const GetBusiness = async (category) => {
+export const GetBusiness = async () => {
+  const MASTER_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
   const Query = gql`
-    query GetBusiness($category: String!) {
-      restaurants {
-        aboutUs
-        address  // Fixed typo from 'aadress' to 'address'
-        banner {
-          url
-        }
-        id
-        name
-        restroType
-        slug
-      }
+    query GetProducts {
+  products (first: 30) {
+    id
+    name
+    rating
+    picture {
+      url
     }
+    description
+  }
+}
 
   
 
   `;
 
-  // Pass the category variable to the query
-  const result = await request(MASTER_URL, Query, { category });
+ 
+  const result = await request(MASTER_URL, Query);
+
   return result;
 };
