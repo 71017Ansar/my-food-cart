@@ -13,7 +13,7 @@ export default function CategoryList({setSelectedCategory,selectedCategory}) {
     const listRef = useRef(null);
 
     const params = useSearchParams();
-   // console.log(selectedCategory)
+   console.log(selectedCategory)
  
 
     // useEffect(() => {
