@@ -1,31 +1,19 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { GetCategory } from '../_utlis/GlobalApi'; // Use named import with curly braces
+import { GetCategory } from '../_utlis/GlobalApi'; 
 import Image from 'next/image';
 import { ArrowRightCircle } from 'lucide-react';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 
-export default function CategoryList({setSelectedCategory,selectedCategory}) {
+export default function CategoryList({ setSelectedCategory }) {
     const [categoryList, setCategoryList] = useState([]);
-     // Fixed initial state
     const listRef = useRef(null);
-
-    const params = useSearchParams();
-   console.log(selectedCategory)
- 
-
-    // useEffect(() => {
-    //     const category = params.get('category');
-    //     setSelectedCategory(category || 'all'); // Fallback to 'all' if no category is selected
-    // }, [params]);
 
     useEffect(() => {
         const getCategoryList = async () => {
             try {
                 const response = await GetCategory();
-                if (response && response.categories) {
+                if (response?.categories) {
                     setCategoryList(response.categories);
                 } else {
                     console.error('Invalid response format');
@@ -51,14 +39,11 @@ export default function CategoryList({setSelectedCategory,selectedCategory}) {
             <div className="flex gap-4 overflow-x-auto scrollbar-hide" ref={listRef}>
                 {categoryList.map((category, index) => (
                     <div
-                        onClick={()=>{
-                            setSelectedCategory(category.name)
-                            
-                        }}
+                        onClick={() => setSelectedCategory(category.name)}
                         key={index}
-                        className={`flex flex-col items-center gap-2 p-4 bg-white rounded-lg shadow-xl hover:shadow-lg transform hover:scale-105 transition-transform min-w-[120px] w-32 `}
+                        className="flex flex-col items-center gap-2 p-4 bg-white rounded-lg shadow-xl hover:shadow-lg transform hover:scale-105 transition-transform min-w-[120px] w-32"
                     >
-                        {category.icon && category.icon.url ? (
+                        {category.icon?.url ? (
                             <Image src={category.icon.url} alt={category.name} width={50} height={50} className="rounded-md" />
                         ) : (
                             <div className="bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center">

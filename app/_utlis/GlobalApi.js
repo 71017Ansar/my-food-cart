@@ -32,6 +32,7 @@ export const GetBusiness = async () => {
     id
     name
     rating
+    price
     picture {
       url
     }
