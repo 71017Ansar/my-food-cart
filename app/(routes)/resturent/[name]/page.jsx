@@ -53,6 +53,7 @@ const RestaurantDetail = () => {
                       <p>{menu.price}</p>
                       <p>{menu.category}</p>
                       <p>{menu.rating}</p>
+                      <h1>{menu.name}</h1>
                       
 
                     </h1>
