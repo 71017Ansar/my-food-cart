@@ -1,5 +1,3 @@
-// app/routes/restaurant/[name]/page.jsx
-
 "use client";
 
 import { GetProductsDetail } from "@/app/_utlis/GlobalApi"; // Adjust the import path as necessary
@@ -8,7 +6,7 @@ import { useEffect, useState } from "react";
 
 const RestaurantDetail = () => {
   const params = useParams(); // Get URL parameters
-  console.log(params.name)
+  console.log(params.name);
   const restaurantName = params.name; // Extract the 'name' parameter from the URL
   const [productDetails, setProductDetails] = useState([]);
   const [error, setError] = useState(null);
@@ -23,7 +21,7 @@ const RestaurantDetail = () => {
     try {
       const response = await GetProductsDetail(name); // Fetch details using the GraphQL query
       console.log(response.products);
-      setProductDetails(response.products); // Assuming response.products is an array and we want the first product
+      setProductDetails(response.products); // Assuming response.products is an array
     } catch (error) {
       console.error(error);
       setError("Failed to fetch product details.");
@@ -34,44 +32,37 @@ const RestaurantDetail = () => {
 
   return (
     <div>
-      {
-        productDetails.map((product,i)=>(
-          <div key={i}>
-            <img src={product.picture?.url} alt={product.name} />
-            <h1>{product.name}</h1>
-            <p>{product.description}</p>
-            <p>{product.price}</p>
-            <p>{product.category}</p>
+      {productDetails.map((product, i) => (
+        <div key={i}>
+          <img src={product.picture?.url} alt={product.name} />
+          <h1>{product.name}</h1>
+          <p>{product.description}</p>
+          <p>Rating: {product.rating}</p>
 
-            <div>
-              {
-                product.menu.map((menu,i)=>(
-                  <div key={i}>
-                    <h1>{menu.name}
-                      <img src={menu.picture?.url} alt={menu.name} />
-                      <p>{menu.description}</p>
-                      <p>{menu.price}</p>
-                      <p>{menu.category}</p>
-                      <p>{menu.rating}</p>
-                      <h1>{menu.name}</h1>
-                      
+          {/* Render Menu */}
+          <div>
+            {product.menu.map((item, j) => (
+              <div key={j}>
+                <h2>Menu Item: {item.category}</h2>
 
-                    </h1>
-
-               
+                {/* Render Menu Items */}
+                {item.menuItem && (
+                  <div>
+                    {item.menuItem.map((menuitem, k) => (
+                      <div key={k}>
+                        <h3>{menuitem.name}</h3>
+                        <img src={menuitem.productImage?.url} alt={menuitem.name} />
+                        <p>Description: {menuitem.description}</p>
+                        <p>Price: ${menuitem.price}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-                ))
-              }
-
-            </div>
-
+            ))}
           </div>
-          
-        ))
-      }
-     
-      
-    
+        </div>
+      ))}
     </div>
   );
 };
