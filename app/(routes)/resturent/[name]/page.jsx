@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 
 const RestaurantDetail = () => {
   const params = useParams(); // Get URL parameters
-  console.log(params.name);
   const restaurantName = params.name; // Extract the 'name' parameter from the URL
   const [productDetails, setProductDetails] = useState([]);
   const [error, setError] = useState(null);
@@ -20,7 +19,6 @@ const RestaurantDetail = () => {
   const getProduct = async (name) => {
     try {
       const response = await GetProductsDetail(name); // Fetch details using the GraphQL query
-      console.log(response.products);
       setProductDetails(response.products); // Assuming response.products is an array
     } catch (error) {
       console.error(error);
@@ -28,36 +26,44 @@ const RestaurantDetail = () => {
     }
   };
 
-  if (error) return <p>{error}</p>; // Display error message if there's an error
+  if (error) return <p className="text-red-500">{error}</p>; // Display error message if there's an error
 
   return (
-    <div>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-center mb-6">{restaurantName} Menu</h1>
+
       {productDetails.map((product, i) => (
-        <div key={i}>
-          <img src={product.picture?.url} alt={product.name} />
-          <h1>{product.name}</h1>
-          <p>{product.description}</p>
-          <p>Rating: {product.rating}</p>
+        <div key={i} className="bg-white shadow-md rounded-lg p-6 mb-6">
+          <div className="flex flex-col items-center mb-4">
+            <img
+              src={product.picture?.url}
+              alt={product.name}
+              className="w-64 h-64 object-cover rounded-lg mb-4"
+            />
+            <h2 className="text-2xl font-semibold">{product.name}</h2>
+            <p className="text-gray-500">{product.description}</p>
+            <p className="text-yellow-500 font-semibold mt-2">Rating: {product.rating}</p>
+          </div>
 
-          {/* Render Menu */}
-          <div>
+          <div className="mt-6">
             {product.menu.map((item, j) => (
-              <div key={j}>
-                <h2>Menu Item: {item.category}</h2>
+              <div key={j} className="mb-6">
+                <h3 className="text-xl font-bold text-gray-800">{item.category}</h3>
 
-                {/* Render Menu Items */}
-                {item.menuItem && (
-                  <div>
-                    {item.menuItem.map((menuitem, k) => (
-                      <div key={k}>
-                        <h3>{menuitem.name}</h3>
-                        <img src={menuitem.productImage?.url} alt={menuitem.name} />
-                        <p>Description: {menuitem.description}</p>
-                        <p>Price: ${menuitem.price}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
+                  {item.menuItem && item.menuItem.map((menuitem, k) => (
+                    <div key={k} className="bg-gray-50 p-4 rounded-lg shadow hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105">
+                      <img
+                        src={menuitem.productImage?.url}
+                        alt={menuitem.name}
+                        className="w-full h-48 object-cover rounded-lg mb-4"
+                      />
+                      <h4 className="text-lg font-semibold">{menuitem.name}</h4>
+                      <p className="text-sm text-gray-600 mb-2">{menuitem.description}</p>
+                      <p className="text-xl font-bold text-green-500">${menuitem.price}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
