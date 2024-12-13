@@ -63,6 +63,8 @@ export const GetProductsDetail = async (name) => {
           id
           url
         }
+              restaurantName
+              restaurantLocation
         rating
         description
         name
