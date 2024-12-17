@@ -1,6 +1,6 @@
 'use client';
 
-import { Search } from "lucide-react";
+import { Search, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
 
@@ -26,7 +26,14 @@ const Header = () => {
       </div>
 
       {isSignedIn ? (
+
+        <div className="flex gap-4">
+          <div className="flex items-center justify-center gap-4">
+            <ShoppingCart size={24} className= "  text-orange-500 items-center" />
+            <label className= " text-orange-500 items-center" >0</label>
+          </div>
         <UserButton />
+        </div>
       ) : (
         <div className="flex gap-4">
           <SignInButton mode="modal">
