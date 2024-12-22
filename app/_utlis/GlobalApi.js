@@ -1,6 +1,4 @@
-
-
-import { gql, request } from 'graphql-request';
+import { gql, request } from "graphql-request";
 
 const MASTER_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
@@ -28,33 +26,27 @@ export const GetBusiness = async () => {
   const MASTER_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
   const Query = gql`
     query GetProducts {
-  products (first: 30) {
-    id
-    name
-    rating
-    price
-    picture {
-      url
+      products(first: 30) {
+        id
+        name
+        rating
+        price
+        picture {
+          url
+        }
+        description
+      }
     }
-    description
-  }
-}
-
-  
-
   `;
 
- 
   const result = await request(MASTER_URL, Query);
 
   return result;
 };
 
-
-
 export const GetProductsDetail = async (name) => {
   const MASTER_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-  
+
   const Query = gql`
     query ProductDetail {
       products(where: { name: "${name}" }) {
@@ -88,11 +80,10 @@ export const GetProductsDetail = async (name) => {
       }
     }
   `;
-  
+
   const result = await request(MASTER_URL, Query);
   return result;
 };
-
 
 //  export const AddToCart = async (data) => {
 //   const MASTER_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
@@ -110,46 +101,30 @@ export const GetProductsDetail = async (name) => {
 // return result;
 // };
 
+//
 
+// Make sure you are using the correct request library
+const BackEnd_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL; // Replace with your actual GraphQL endpoint
 
+// Assuming you're using this or a similar library for GraphQL
 
-
-
-
-// 
-
-
-
-
-
-
- // Make sure you are using the correct request library
-const BackEnd_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;;  // Replace with your actual GraphQL endpoint
-
- // Assuming you're using this or a similar library for GraphQL
-
- // Replace this with your actual GraphQL endpoint URL
-
-export const AddToCart = async (data) => {
+// Replace this with your actual GraphQL endpoint URL
+ export const AddToCart = async (data) => {
   const query = `
-    mutation AddToCart(
-      $email: String!, 
-      $price: Float!, 
-      $productName: String!, 
-      $productdescription: String!
-    ) {
+    mutation AddUserCart($email: String!, $productName: String!, $price: Float!, $productdescription: String! ) {
       createUserCart(
         data: {
           email: $email,
-          price: $price,
           productName: $productName,
+          price: $price,
           productdescription: $productdescription
         }
       ) {
         id
-      }
-      publishUserCart(where: {}, to: PUBLISHED) {
+        email
+        productName
         price
+        productdescription
       }
     }
   `;
@@ -162,43 +137,89 @@ export const AddToCart = async (data) => {
   };
 
   try {
-    const response = await request( BackEnd_URL, query, variables);
-    console.log("Response from GraphQL:", response);
-    return response;
-  } catch (err) {
-    console.error("Error making the GraphQL request:", err);
-    throw new Error("Error adding to cart.");
+    const response = await fetch(BackEnd_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query,
+        variables,
+      }),
+    });
+
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.error(error);
   }
 };
 
 
 
 
-// query MyQuery4 {
-//   products(where: {name: "Pizza"}) {
-//     id
-//     picture {
+
+
+
+
+
+
+export const GetUserCart = async (email) => {
+  if (!MASTER_URL) {
+    throw new Error("MASTER_URL is undefined. Check your environment variables.");
+  }
+  const QUERY = gql`
+    query GetUserCart($email: String!) {
+      userCarts(where: { email: $email }, first: 50) {
+        id
+        email
+        productName
+        price
+        productdescription
+      }
+    }
+  `;
+
+  const variables = { email };
+  console.log("Sending GraphQL request to:", MASTER_URL);
+  console.log("Query variables:", variables);
+
+  try {
+    const data = await request(MASTER_URL, QUERY, variables);
+    console.log("GraphQL Response:", data);
+
+    if (!data || !data.userCarts) {
+      console.error("Invalid response structure:", data);
+      throw new Error("Invalid response structure");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("GraphQL Error:", error.message, error.stack);
+    throw error;
+  }
+};
+//     export  const GetUserCart = async (email) => {
+//   const QUERY = gql`
+//   query GetUserCart {
+//     userCarts(where: { email: $email }) {
 //       id
-//       url
-//     }
-//     rating
-//     description
-//     name
-//     menu {
-//       ... on Menu {
-//         category
-//         id
-//         menuItem {
-//           ... on MenuItem {
-//             id
-//             name
-//             price
-//             productImage {
-//               url
-//             }
-//             description
-//           }
-//         }
-//       }
+//       email
+//       productName
+//       price
+//       productdescription
 //     }
 //   }
+// `;
+// const data = await request(MASTER_URL, QUERY);
+// console.log("Response with hardcoded email:", data);
+//     }
+
+      
+
+
+
+
+ 
+

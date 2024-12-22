@@ -3,10 +3,11 @@
 import { GetProductsDetail } from "@/app/_utlis/GlobalApi";
 import { SquarePlus } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { toast } from "sonner"; // Ensure this library is installed
+import { toast } from "sonner";
 import { AddToCart } from "@/app/_utlis/GlobalApi";
+import { CartUpdateContext } from "@/app/_context/CartUpdateContext";
 
 const RestaurantDetail = () => {
   const params = useParams();
@@ -14,35 +15,35 @@ const RestaurantDetail = () => {
   const [productDetails, setProductDetails] = useState([]);
   const [error, setError] = useState(null);
   const { user } = useUser();
+  const {updateCart, setUpdateCart } = useContext(CartUpdateContext);
 
-  // Add to cart handler
   const AddToCartHandler = async (menuitem) => {
     if (!user?.primaryEmailAddress?.emailAddress) {
       toast.error("Email is required.");
       return;
     }
-  
+
     const data = {
-      email: user?.primaryEmailAddress?.emailAddress || "", 
+      email: user?.primaryEmailAddress?.emailAddress || "",
       productName: menuitem?.name || "Unnamed Item",
       price: menuitem?.price || 0.0,
       productdescription: menuitem?.description || "No description available",
     };
     console.log("Adding to cart with data:", data);
-  
+
     toast("Adding to cart...");
-  
+
     try {
       const response = await AddToCart(data);
       console.log("Add to Cart Response:", response);
       toast.success("Added to cart successfully!");
+      setUpdateCart(!updateCart);
     } catch (err) {
       console.error("Error adding to cart:", err);
       toast.error("Failed to add to cart. Please try again.");
     }
   };
 
-  // Fetch Product Details
   useEffect(() => {
     if (restaurantName) {
       getProduct(restaurantName);
@@ -60,17 +61,14 @@ const RestaurantDetail = () => {
     }
   };
 
-  // Error Handling
   if (error) {
     return <p className="text-red-500 text-center">{error}</p>;
   }
 
-  // Fallback for No Data
   if (!productDetails.length) {
     return <p className="text-gray-500 text-center">No products found for this restaurant.</p>;
   }
 
-  // Render UI
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="relative mb-12">
@@ -90,7 +88,7 @@ const RestaurantDetail = () => {
         <div key={i} className="bg-white shadow-lg rounded-lg p-6 mb-8">
           <div className="flex flex-col items-center mb-6">
             <img
-              src={product.picture?.url || "/images/placeholder.jpg"} // Use a valid placeholder image URL
+              src={product.picture?.url || "/images/placeholder.jpg"}
               alt={product.name}
               className="w-90 h-64 object-cover rounded-lg mb-4 shadow-md"
             />
@@ -110,14 +108,14 @@ const RestaurantDetail = () => {
                         className="bg-gray-50 p-5 rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105"
                       >
                         <img
-                          src={menuitem.productImage?.url || "/images/placeholder.jpg"} // Ensure this is a valid path
+                          src={menuitem.productImage?.url || "/images/placeholder.jpg"}
                           alt={menuitem.name}
                           className="w-full h-48 object-cover rounded-lg mb-4 shadow-md"
                         />
                         <h4 className="text-lg font-semibold text-gray-800">{menuitem.name}</h4>
                         <p className="text-sm text-gray-500 mb-2">{menuitem.description}</p>
                         <p className="text-xl font-bold text-green-500">${menuitem.price}</p>
-                        <SquarePlus onClick={ async() =>  await AddToCartHandler(menuitem)} />
+                        <SquarePlus onClick={async () => await AddToCartHandler(menuitem)} />
                       </div>
                     ))}
                   </div>

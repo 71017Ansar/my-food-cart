@@ -1,17 +1,23 @@
+'use client';
+
+import { useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
-import Header from "./_components/Header";
+import Header from "/app/_components/Header";
 
+import { CartUpdateContext } from "/app/_context/CartUpdateContext";
 
+const Provider = ({ children }) => {
+  const [updateCart, setUpdateCart] = useState(false);
 
-
-const Provider = ({children}) => {
   return (
-    <div>
+    <CartUpdateContext.Provider value={{ updateCart, setUpdateCart }}>
+      <div>
         <Header />
-        <Toaster/>
-       {children}
-    </div>
-  )
-}
+        <Toaster />
+        {children}
+      </div>
+    </CartUpdateContext.Provider>
+  );
+};
 
-export default Provider
+export default Provider;
