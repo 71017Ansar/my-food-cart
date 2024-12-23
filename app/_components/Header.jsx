@@ -1,4 +1,4 @@
-
+"use clint";
 import { Search, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
@@ -6,6 +6,13 @@ import { useContext, useEffect } from "react";
 import { CartUpdateContext } from "@/app/_context/CartUpdateContext";
 import { GetUserCart } from "@/app/_utlis/GlobalApi";
 import { useState } from "react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {Cart} from "@/app/_components/Cart";
+
 
 const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
@@ -24,6 +31,7 @@ const Header = () => {
     try {
       const cartData = await GetUserCart(email);
       setCart(cartData.userCarts);  
+      
       if (!cartData || cartData.userCarts.length === 0) {
         console.warn("No cart data found for the provided email:", email);
       } else {
@@ -50,7 +58,7 @@ const Header = () => {
   }
 
   return (
-    <div className="flex justify-between items-center py-4 px-8 bg-white shadow-md">
+    <div className="flex justify-between items-center py-4 px-8  bg-white shadow-md">
       <div>
         <h1 className="text-3xl font-bold text-orange-500">FOOD CART</h1>
       </div>
@@ -65,12 +73,25 @@ const Header = () => {
 
       {isSignedIn ? (
         <div className="flex gap-4">
-          <div className="flex items-center justify-center gap-4">
-            <ShoppingCart size={24} className="text-orange-500 items-center " />
-            <label className="bg-slate-500 text-orange-600 rounded-full px-3 py-1 text-sm font-semibold">
-  {cart?.length}
-</label>
-          </div>
+          <Popover>
+              <PopoverTrigger asChild>
+
+               <div className="flex items-center justify-center gap-4">
+                <ShoppingCart size={24} className="text-orange-500 items-center cursor-pointer  " />
+                  <label className="bg-slate-500 text-orange-600 rounded-full px-3 py-1 text-sm font-semibold">
+                 {cart?.length}
+                  </label>
+                   </div>
+                </PopoverTrigger>
+                <PopoverContent className="bg-white shadow-md rounded-lg p-4">
+                  <Cart cart={cart}  setcart={setCart} />
+                </PopoverContent>
+{/* 
+                <Cart  cart={cart}/>  */}
+
+              </Popover>
+
+          
           <UserButton />
         </div>
       ) : (
