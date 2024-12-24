@@ -209,6 +209,84 @@ export const RemoveFromCart = async (id) => {
   
 }
 
+
+
+
+
+
+
+
+
+export const CreateNewOrder = async (data) => {
+  if (!MASTER_URL) {
+    throw new Error("MASTER_URL is undefined. Check your environment variables.");
+  }
+
+  const MUTATION = gql`
+    mutation CreateNewOrder(
+      $email: String!,
+      $orderAmount: Float!,
+      $address: String!,
+      $phone: String!,
+      $zip: String!,
+      $userName: String!
+    ) {
+      createOrder(
+        data: {
+          email: $email,
+          orderAmount: $orderAmount,
+          address: $address,
+          phone: $phone,
+          zip: $zip,
+          userName: $userName
+        }
+      ) {
+        id
+      }
+    }
+  `;
+
+  const variables = {
+    email: data.email,
+    orderAmount: parseFloat(data.orderAmount), // Ensure orderAmount is a Float
+    address: data.address.trim(),
+    phone: data.phone.trim(),
+    zip: data.zip.trim(),
+    userName: data.userName.trim(),
+  };
+
+  console.log("Sending GraphQL request to:", MASTER_URL);
+  console.log("Mutation variables:", variables);
+
+  try {
+    const result = await request(MASTER_URL, MUTATION, variables);
+    console.log("GraphQL Response:", result);
+    return result;
+  } catch (error) {
+    console.error("GraphQL Error:", error.response || error.message);
+    throw error;
+  }
+};
+
+
+export const UpdateOrderToAddOrderDetails = async ( orderAmount, phone, userName,id) => {
+  const Query = gql`
+  mutation UpdateOrderWithDetail {
+  updateOrder(data: {orderAmount: $orderAmount, phone: " $phone", userName: " $userName"}, where: {id: "$id"}) {
+    id
+  }
+}`;
+
+  const result = await request(MASTER_URL, Query);
+  return result;
+}
+
+      
+      
+      
+
+  
+
       
 
 
