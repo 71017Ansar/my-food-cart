@@ -5,6 +5,9 @@ import { useContext, useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { GetUserCart } from "@/app/_utlis/GlobalApi";
 import { CreateNewOrder } from "@/app/_utlis/GlobalApi";
+import { UpdateOrderToAddOrderDetails } from "@/app/_utlis/GlobalApi";
+import { Loader } from "lucide-react";
+
 
 const CheckOut = () => {
   const [name, setName] = useState("");
@@ -20,6 +23,7 @@ const CheckOut = () => {
   const [taxAmount, setTaxAmount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const [subTotal, setSubTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const FetchUserCart = async () => {
     const email = user?.primaryEmailAddress?.emailAddress?.trim();
@@ -65,9 +69,11 @@ const CheckOut = () => {
  
 
   const addToOrder = async () => {
+    setLoading(true);
+  
     const data = {
-      email: user.primaryEmailAddress.emailAddress || "",
-      orderAmount: totalAmount, // Ensure totalAmount is a valid number
+      email: user.primaryEmailAddress?.emailAddress || "",
+      orderAmount: totalAmount,
       userName: user.fullName || "",
       address: address || "",
       phone: phone || "",
@@ -75,32 +81,53 @@ const CheckOut = () => {
     };
   
     try {
-      // Validate orderAmount
+      // Validate fields
       if (!data.email || !data.userName || !data.address || !data.phone || !data.zip) {
-        console.error("Missing required fields in order data:", data);
         throw new Error("All fields are required.");
       }
   
       if (isNaN(data.orderAmount) || data.orderAmount <= 0) {
-        console.error("Invalid Order Amount:", data.orderAmount);
         throw new Error("Order amount must be a valid positive number.");
       }
   
       console.log("Order Data:", data);
+  
+      // Create a new order and fetch its ID
       const res = await CreateNewOrder(data);
-      console.log("Order Response:", res.createOrder.id);
       const resultId = res.createOrder.id;
-
-      if (resultId){
-        cart.forEach(async (item) => {
-          UpdateOrderToAddOrderDetails(item.price, phone, user.fullName, resultId);
-
+  
+      if (resultId) {
+        // Add items to the order in parallel
+        const addOrderPromises = cart.map((item) => {
+          const itemName = String(item.productName);
+          const itemPrice = parseFloat(item.price);
+          const Email = String(user.primaryEmailAddress?.emailAddress || "");
+  
+          if (isNaN(itemPrice)) {
+            throw new Error(`Invalid price for item ${item.productName}`);
+          }
+  
+          return UpdateOrderToAddOrderDetails(resultId, itemName, itemPrice, Email);
         });
+  
+        const results = await Promise.all(addOrderPromises);
+        console.log("All Order Details Added:", results);
       }
+  
+      setLoading(false);
     } catch (error) {
-      console.error("Order Creation Error:", error.message);
+      console.error("Error adding to order:", error.message);
+      setLoading(false);
     }
   };
+  
+  
+  
+            
+
+        
+      
+  
   
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-6">
@@ -234,8 +261,10 @@ const CheckOut = () => {
           </div>
           <button  onClick={() => addToOrder() }
             className="w-full mt-6 bg-green-600 text-white py-2 rounded-md text-lg font-medium hover:bg-green-700 transition duration-150"
-          >
-            Place Order
+          >{
+            loading ? <Loader className="animate-spin flex justify-center items-center" size="1em"   /> : "Place Order"
+          }
+           
           </button>
         </div>
       </div>

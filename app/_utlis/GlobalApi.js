@@ -269,17 +269,55 @@ export const CreateNewOrder = async (data) => {
 };
 
 
-export const UpdateOrderToAddOrderDetails = async ( orderAmount, phone, userName,id) => {
-  const Query = gql`
-  mutation UpdateOrderWithDetail {
-  updateOrder(data: {orderAmount: $orderAmount, phone: " $phone", userName: " $userName"}, where: {id: "$id"}) {
-    id
-  }
-}`;
 
-  const result = await request(MASTER_URL, Query);
-  return result;
-}
+
+export const UpdateOrderToAddOrderDetails = async (id, name, price, email) => {
+  if (!MASTER_URL) {
+    throw new Error("MASTER_URL is undefined. Check your environment variables.");
+  }
+
+  // Ensure correct data types
+  const itemName = String(name); // Ensure it's a string
+  const itemPrice = parseFloat(price); // Ensure it's a float
+  const Email = String(email); // Ensure it's a string
+
+  if (isNaN(itemPrice)) {
+    throw new Error(`Invalid price: ${price}`);
+  }
+
+  const QUERY = gql`
+    mutation UpdateOrder($id: ID!, $name: String!, $price: Float!, $email: String!) {
+      updateOrder(
+        data: {
+          orderDetail: {
+            create: {
+              MenuItem: { data: { name: $name, price: $price } }
+            }
+          }
+        }
+        where: { id: $id }
+      ) {
+        id
+      }
+      deleteManyUserCarts(where: { email: $email }) {
+        count
+      }
+    }
+  `;
+
+  const variables = { id, name: itemName, price: itemPrice, email: Email };
+
+  try {
+    console.log("Query variables:", variables);
+    const data = await request(MASTER_URL, QUERY, variables);
+    console.log("GraphQL Response:", data);
+    return data;
+  } catch (error) {
+    console.error("GraphQL Request Error:", error);
+    throw new Error("Failed to update order. Please check your input or server status.");
+  }
+};
+
 
       
       
